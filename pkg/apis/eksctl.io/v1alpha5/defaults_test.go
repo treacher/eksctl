@@ -55,7 +55,7 @@ var _ = Describe("ClusterConfig validation", func() {
 
 	Context("SSH settings", func() {
 
-		It("Providing an SSH key enables SSH", func() {
+		It("Providing an SSH key does not set SSH allow to true", func() {
 			testKeyPath := "some/path/to/file.pub"
 
 			testNodeGroup := NodeGroup{
@@ -68,7 +68,22 @@ var _ = Describe("ClusterConfig validation", func() {
 
 			SetNodeGroupDefaults(&testNodeGroup, &ClusterMeta{})
 
-			Expect(*testNodeGroup.SSH.Allow).To(BeTrue())
+			Expect(*testNodeGroup.SSH.Allow).To(BeFalse())
+		})
+
+		It("Sets SSH allow to Disabled when it is not defined", func() {
+			testKeyPath := "some/path/to/file.pub"
+
+			testNodeGroup := NodeGroup{
+				VolumeSize: &DefaultNodeVolumeSize,
+				SSH: &NodeGroupSSH{
+					PublicKeyPath: &testKeyPath,
+				},
+			}
+
+			SetNodeGroupDefaults(&testNodeGroup, &ClusterMeta{})
+
+			Expect(*testNodeGroup.SSH.Allow).To(BeFalse())
 		})
 
 		It("Enabling SSH without a key uses default key", func() {
