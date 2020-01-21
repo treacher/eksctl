@@ -63,6 +63,12 @@ func New(spec *api.ClusterConfig, username, certificateAuthorityPath string) (*c
 		CurrentContext: contextName,
 	}
 
+	eksEndpoint, hasEksEndpoint := os.LookupEnv("KUBECONFIG_CLUSTER_ENDPOINT")
+
+	if hasEksEndpoint {
+		c.Clusters[clusterName].Server = eksEndpoint
+	}
+
 	if certificateAuthorityPath == "" {
 		c.Clusters[clusterName].CertificateAuthorityData = spec.Status.CertificateAuthorityData
 	} else {
